@@ -1,36 +1,37 @@
 "use strict"
 
+// This function creates the coffee div and also adds the h2 with the coffee names within the div and then returns the div with all the children appended
 function renderCoffee(coffee) {
-    var html = '<tr class="coffee">';
-    html += '<td>' + coffee.id + '</td>';
-    html += '<td>' + coffee.name + '</td>';
-    html += '<td>' + coffee.roast + '</td>';
-    html += '</tr>';
+    let div = document.createElement("div");
+    let heading = document.createElement("h2");
+    heading.textContent = coffee.name;
+    let p = document.createElement("p");
+    p.textContent = coffee.roast;
 
-    return html;
+    div.appendChild(heading);
+    div.appendChild(p);
+
+    return div;
 }
 
-function renderCoffees(coffees) {
-    var html = '';
-    for(var i = coffees.length - 1; i >= 0; i--) {
-        html += renderCoffee(coffees[i]);
-    }
-    return html;
-}
-
+// Update coffees function is waiting for a event so when we click the submit button we will clear what ever is in the box and then call the renderCoffee function to display what ever it is we clicked.
 function updateCoffees(e) {
     e.preventDefault(); // don't submit the form, we just want to update the data
-    var selectedRoast = roastSelection.value;
-    var filteredCoffees = [];
+    tbody.innerHTML = ''; // clear the previous coffees
+    const selectedRoast = roastSelection.value;
+    const filteredValue = inputField.value.toLowerCase();
+    let filteredCoffees = [];
     coffees.forEach(function(coffee) {
-        if (coffee.roast === selectedRoast) {
-            filteredCoffees.push(coffee);
-        }
+       if(selectedRoast === "all"){
+           tbody.appendChild(renderCoffee(coffee));
+       } else if (coffee.roast === selectedRoast &&
+           coffee.name.toLowerCase().includes(filteredValue)) {
+           tbody.appendChild(renderCoffee(coffee));
+           // append the new filtered coffees
+       }
     });
-    tbody.innerHTML = renderCoffees(filteredCoffees);
 }
 
-// from http://www.ncausa.org/About-Coffee/Coffee-Roasts-Guide
 var coffees = [
     {id: 1, name: 'Light City', roast: 'light'},
     {id: 2, name: 'Half City', roast: 'light'},
@@ -48,10 +49,16 @@ var coffees = [
     {id: 14, name: 'French', roast: 'dark'},
 ];
 
-var tbody = document.querySelector('#coffees');
-var submitButton = document.querySelector('#submit');
-var roastSelection = document.querySelector('#roast-selection');
+const tbody = document.querySelector('#coffees');
+const submitButton = document.querySelector('#submit');
+const roastSelection = document.querySelector('#roast-selection');
+const inputField = document.querySelector('.input');
 
-tbody.innerHTML = renderCoffees(coffees);
-
+// This loop will display all the coffees we have as soon as the page loads
+for(let i = coffees.length - 1; i >= 0; i--) {
+    tbody.appendChild(renderCoffee(coffees[i]));
+}
 submitButton.addEventListener('click', updateCoffees);
+inputField.addEventListener("keyup", updateCoffees)
+
+
