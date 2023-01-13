@@ -15,24 +15,44 @@ function renderCoffee(coffee) {
 }
 
 // Update coffees function is waiting for a event so when we click the submit button we will clear what ever is in the box and then call the renderCoffee function to display what ever it is we clicked.
-function updateCoffees(e) {
-    e.preventDefault(); // don't submit the form, we just want to update the data
-    tbody.innerHTML = ''; // clear the previous coffees
+function updateCoffees() {
+    tbody.innerHTML = '';
     const selectedRoast = roastSelection.value;
-    const filteredValue = inputField.value.toLowerCase();
+    const filterText = inputField.value.toLowerCase(); // this is coming from the input value
     let filteredCoffees = [];
     coffees.forEach(function(coffee) {
-       if(selectedRoast === "all"){
-           tbody.appendChild(renderCoffee(coffee));
-       } else if (coffee.roast === selectedRoast &&
-           coffee.name.toLowerCase().includes(filteredValue)) {
-           tbody.appendChild(renderCoffee(coffee));
-           // append the new filtered coffees
-       }
+        if (shouldRenderCoffee(coffee, selectedRoast, filterText)) {
+            tbody.appendChild(renderCoffee(coffee));
+        }
     });
 }
 
-var coffees = [
+function shouldRenderCoffee(coffee, selectedRoast, filterText) {
+    if (selectedRoast !== 'all' && coffee.roast !== selectedRoast) {
+        return false;
+    }
+    if (!coffee.name.toLowerCase().includes(filterText)) {
+        return false;
+    }
+    return true;
+}
+
+function addCoffee (e){
+    e.preventDefault();
+    const addRoastSelection = addCoffeeSelection.value;
+    const addCoffeeInputSelection = addCoffeeInput.value;
+    const newObj = {
+        id: coffees.length + 1,
+        roast: addRoastSelection,
+        name: addCoffeeInputSelection,
+    }
+    coffees.push(newObj);
+    addCoffeeSelection.value = "";
+    addCoffeeInput.value = "";
+    updateCoffees();
+}
+
+let coffees = [
     {id: 1, name: 'Light City', roast: 'light'},
     {id: 2, name: 'Half City', roast: 'light'},
     {id: 3, name: 'Cinnamon', roast: 'light'},
@@ -53,12 +73,21 @@ const tbody = document.querySelector('#coffees');
 const submitButton = document.querySelector('#submit');
 const roastSelection = document.querySelector('#roast-selection');
 const inputField = document.querySelector('.input');
+const addCoffeeSubmit = document.querySelector('#submit-coffee');
+const addCoffeeSelection = document.querySelector('#add-roast-selection')
+const addCoffeeInput = document.querySelector('#add-coffee-input');
+const addCoffeeForm = document.querySelector('#add-coffee-form')
 
 // This loop will display all the coffees we have as soon as the page loads
 for(let i = coffees.length - 1; i >= 0; i--) {
     tbody.appendChild(renderCoffee(coffees[i]));
 }
+
+
+addCoffeeForm.addEventListener('submit', addCoffee);
 submitButton.addEventListener('click', updateCoffees);
-inputField.addEventListener("keyup", updateCoffees)
+inputField.addEventListener("keyup", updateCoffees);
+roastSelection.addEventListener("change", updateCoffees);
+
 
 
